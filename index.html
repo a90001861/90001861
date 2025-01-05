@@ -101,23 +101,6 @@
         .form button:hover {
             background-color: #0056b3;
         }
-        .sync-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-        .sync-buttons button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .sync-buttons button:hover {
-            background-color: #0056b3;
-        }
         .modal {
             display: none;
             position: fixed;
@@ -174,10 +157,6 @@
         <!-- 아침편지 게시판 -->
         <div class="board" id="morningLetter">
             <h2>아침편지</h2>
-            <div class="sync-buttons">
-                <button onclick="saveData('morningLetter')">저장</button>
-                <button onclick="loadData('morningLetter')">불러오기</button>
-            </div>
             <div id="morningLetterPosts"></div>
             <div class="form">
                 <h3>새 글 작성</h3>
@@ -191,10 +170,6 @@
         <!-- 치험례 게시판 -->
         <div class="board" id="caseStudy">
             <h2>치험례</h2>
-            <div class="sync-buttons">
-                <button onclick="saveData('caseStudy')">저장</button>
-                <button onclick="loadData('caseStudy')">불러오기</button>
-            </div>
             <div id="caseStudyPosts"></div>
             <div class="form">
                 <h3>새 글 작성</h3>
@@ -218,8 +193,8 @@
 
     <script>
         const postsData = {
-            morningLetter: [],
-            caseStudy: []
+            morningLetter: JSON.parse(localStorage.getItem('morningLetterData')) || [],
+            caseStudy: JSON.parse(localStorage.getItem('caseStudyData')) || []
         };
 
         function renderPosts(boardId) {
@@ -248,6 +223,7 @@
 
             if (title && content) {
                 postsData[boardId].push({ title, content, images });
+                localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
                 renderPosts(boardId);
 
                 // Clear input fields
@@ -256,22 +232,6 @@
                 imageInput.value = '';
             } else {
                 alert('제목과 내용을 입력하세요.');
-            }
-        }
-
-        function saveData(boardId) {
-            localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
-            alert('데이터가 저장되었습니다!');
-        }
-
-        function loadData(boardId) {
-            const savedData = localStorage.getItem(`${boardId}Data`);
-            if (savedData) {
-                postsData[boardId] = JSON.parse(savedData);
-                renderPosts(boardId);
-                alert('데이터를 불러왔습니다!');
-            } else {
-                alert('저장된 데이터가 없습니다.');
             }
         }
 
