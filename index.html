@@ -29,6 +29,7 @@
             padding: 10px 0;
             display: flex;
             align-items: center;
+            cursor: pointer;
         }
         .post:last-child {
             border-bottom: none;
@@ -44,14 +45,23 @@
             margin: 0;
             font-size: 16px;
         }
-        .post p {
-            color: #555;
-            font-size: 14px;
+        .details {
+            display: none;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .details h2 {
+            margin-top: 0;
+        }
+        .details img {
+            max-width: 100%;
+            margin-bottom: 20px;
         }
         .form {
             margin-top: 20px;
         }
-        .form input, .form textarea, .form button {
+        .form input, .form button {
             width: 100%;
             margin-bottom: 10px;
             padding: 10px;
@@ -67,6 +77,16 @@
         .form button:hover {
             background-color: #0056b3;
         }
+        .contenteditable {
+            width: 100%;
+            min-height: 100px;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -75,11 +95,18 @@
         <div class="board">
             <h1>아침편지</h1>
             <div id="posts1"></div>
+            <div class="details" id="details1">
+                <h2 id="detailsTitle1"></h2>
+                <img id="detailsImage1" src="" alt="">
+                <p id="detailsContent1"></p>
+                <button onclick="closeDetails(1)">닫기</button>
+            </div>
             <div class="form">
                 <h2>새 글 작성</h2>
                 <input type="text" id="title1" placeholder="제목">
-                <textarea id="content1" placeholder="내용"></textarea>
-                <input type="text" id="image1" placeholder="이미지 URL">
+                <div id="content1" class="contenteditable" contenteditable="true" placeholder="내용"></div>
+                <input type="file" id="image1" accept="image/*" onchange="previewImage(1)">
+                <img id="preview1" style="display:none; width: 100px; margin-top: 10px;">
                 <button onclick="addPost(1)">등록</button>
             </div>
         </div>
@@ -88,11 +115,18 @@
         <div class="board">
             <h1>치험례</h1>
             <div id="posts2"></div>
+            <div class="details" id="details2">
+                <h2 id="detailsTitle2"></h2>
+                <img id="detailsImage2" src="" alt="">
+                <p id="detailsContent2"></p>
+                <button onclick="closeDetails(2)">닫기</button>
+            </div>
             <div class="form">
                 <h2>새 글 작성</h2>
                 <input type="text" id="title2" placeholder="제목">
-                <textarea id="content2" placeholder="내용"></textarea>
-                <input type="text" id="image2" placeholder="이미지 URL">
+                <div id="content2" class="contenteditable" contenteditable="true" placeholder="내용"></div>
+                <input type="file" id="image2" accept="image/*" onchange="previewImage(2)">
+                <img id="preview2" style="display:none; width: 100px; margin-top: 10px;">
                 <button onclick="addPost(2)">등록</button>
             </div>
         </div>
@@ -101,11 +135,18 @@
         <div class="board">
             <h1>게시판 1</h1>
             <div id="posts3"></div>
+            <div class="details" id="details3">
+                <h2 id="detailsTitle3"></h2>
+                <img id="detailsImage3" src="" alt="">
+                <p id="detailsContent3"></p>
+                <button onclick="closeDetails(3)">닫기</button>
+            </div>
             <div class="form">
                 <h2>새 글 작성</h2>
                 <input type="text" id="title3" placeholder="제목">
-                <textarea id="content3" placeholder="내용"></textarea>
-                <input type="text" id="image3" placeholder="이미지 URL">
+                <div id="content3" class="contenteditable" contenteditable="true" placeholder="내용"></div>
+                <input type="file" id="image3" accept="image/*" onchange="previewImage(3)">
+                <img id="preview3" style="display:none; width: 100px; margin-top: 10px;">
                 <button onclick="addPost(3)">등록</button>
             </div>
         </div>
@@ -114,11 +155,18 @@
         <div class="board">
             <h1>게시판 2</h1>
             <div id="posts4"></div>
+            <div class="details" id="details4">
+                <h2 id="detailsTitle4"></h2>
+                <img id="detailsImage4" src="" alt="">
+                <p id="detailsContent4"></p>
+                <button onclick="closeDetails(4)">닫기</button>
+            </div>
             <div class="form">
                 <h2>새 글 작성</h2>
                 <input type="text" id="title4" placeholder="제목">
-                <textarea id="content4" placeholder="내용"></textarea>
-                <input type="text" id="image4" placeholder="이미지 URL">
+                <div id="content4" class="contenteditable" contenteditable="true" placeholder="내용"></div>
+                <input type="file" id="image4" accept="image/*" onchange="previewImage(4)">
+                <img id="preview4" style="display:none; width: 100px; margin-top: 10px;">
                 <button onclick="addPost(4)">등록</button>
             </div>
         </div>
@@ -132,33 +180,70 @@
             4: []
         };
 
+        function previewImage(boardId) {
+            const fileInput = document.getElementById(`image${boardId}`);
+            const preview = document.getElementById(`preview${boardId}`);
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+            }
+        }
+
         function renderPosts(boardId) {
             const postsContainer = document.getElementById(`posts${boardId}`);
             postsContainer.innerHTML = '';
-            postsData[boardId].forEach(post => {
+            postsData[boardId].forEach((post, index) => {
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
                 postElement.innerHTML = `
                     <img src="${post.image}" alt="대표 이미지">
                     <div>
                         <h3>${post.title}</h3>
-                        <p>${post.content}</p>
                     </div>
                 `;
+                postElement.addEventListener('click', () => showDetails(boardId, index));
                 postsContainer.appendChild(postElement);
             });
         }
 
+        function showDetails(boardId, index) {
+            const details = document.getElementById(`details${boardId}`);
+            const post = postsData[boardId][index];
+
+            document.getElementById(`detailsTitle${boardId}`).textContent = post.title;
+            document.getElementById(`detailsImage${boardId}`).src = post.image;
+            document.getElementById(`detailsContent${boardId}`).innerHTML = post.content;
+
+            details.style.display = 'block';
+        }
+
+        function closeDetails(boardId) {
+            const details = document.getElementById(`details${boardId}`);
+            details.style.display = 'none';
+        }
+
         function addPost(boardId) {
             const title = document.getElementById(`title${boardId}`).value;
-            const content = document.getElementById(`content${boardId}`).value;
-            const image = document.getElementById(`image${boardId}`).value || 'https://via.placeholder.com/50';
+            const contentDiv = document.getElementById(`content${boardId}`);
+            const content = contentDiv.innerHTML;
+            const preview = document.getElementById(`preview${boardId}`);
+            const image = preview.src || 'https://via.placeholder.com/50';
 
-            if (title && content) {
+            if (title && content.trim()) {
                 postsData[boardId].push({ title, content, image });
                 document.getElementById(`title${boardId}`).value = '';
-                document.getElementById(`content${boardId}`).value = '';
+                contentDiv.innerHTML = '';
                 document.getElementById(`image${boardId}`).value = '';
+                preview.style.display = 'none';
                 renderPosts(boardId);
             } else {
                 alert('제목과 내용을 입력하세요.');
