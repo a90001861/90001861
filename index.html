@@ -142,7 +142,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            overflow-y: auto; /* Allow scrolling for longer content */
+            overflow-y: auto;
         }
         .modal-content {
             background: white;
@@ -165,7 +165,7 @@
             font-size: 1rem;
             color: #555;
             text-align: left;
-            white-space: pre-wrap; /* Preserve formatting */
+            white-space: pre-wrap;
         }
         .close-modal {
             margin-top: 20px;
@@ -187,7 +187,6 @@
     </div>
 
     <div class="container">
-        <!-- 아침편지 게시판 -->
         <div class="board" id="morningLetter">
             <h2>아침편지</h2>
             <div id="morningLetterPosts"></div>
@@ -201,7 +200,6 @@
             </div>
         </div>
 
-        <!-- 치험례 게시판 -->
         <div class="board" id="caseStudy">
             <h2>치험례</h2>
             <div id="caseStudyPosts"></div>
@@ -216,7 +214,6 @@
         </div>
     </div>
 
-    <!-- Modal for post details -->
     <div class="modal" id="postModal" onclick="closeModalByClick(event)">
         <div class="modal-content">
             <h3 id="modalTitle"></h3>
@@ -235,19 +232,21 @@
         function renderPosts(boardId) {
             const boardPosts = document.getElementById(`${boardId}Posts`);
             boardPosts.innerHTML = '';
+
             if (!postsData[boardId]) {
                 console.error(`${boardId} 데이터가 없습니다.`);
                 return;
             }
 
             postsData[boardId].forEach((post, index) => {
+                const shortContent = post.content.length > 100 ? post.content.substring(0, 100) + '...' : post.content;
                 const postElement = document.createElement('div');
                 postElement.className = 'post';
                 postElement.innerHTML = `
                     <img src="${post.images[0] || 'https://via.placeholder.com/100'}" alt="이미지">
                     <div class="post-content">
                         <h3>${post.title}</h3>
-                        <p>${post.content}</p>
+                        <p>${shortContent}</p>
                     </div>
                     <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
                     <button class='delete-post' onclick='deletePost("${boardId}", ${index})'>삭제</button>
@@ -276,11 +275,11 @@
                     if (!postsData[boardId]) {
                         postsData[boardId] = [];
                     }
+
                     postsData[boardId].push({ title, content, images: imageDataUrls });
                     localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
                     renderPosts(boardId);
 
-                    // Clear input fields
                     document.getElementById(`${boardId}Title`).value = '';
                     document.getElementById(`${boardId}Content`).innerHTML = '';
                     imageInput.value = '';
@@ -291,57 +290,16 @@
                     alert('제목을 입력하세요.');
                 }
             }).catch(error => {
-                console.error('이미지 업로드 중 오류 발생:', error);
+                console.error(`${boardId} 게시판에서 이미지 업로드 중 오류 발생:`, error);
             });
-        }
-
-        function editPost(boardId, index) {
-            const post = postsData[boardId][index];
-
-            // Populate the form fields with the existing post data
-            document.getElementById(`${boardId}Title`).value = post.title;
-            document.getElementById(`${boardId}Content`).innerHTML = post.content;
-
-            // Attach a save button for the edit
-            const saveButton = document.createElement('button');
-            saveButton.textContent = '수정 저장';
-            saveButton.style.backgroundColor = '#28a745';
-            saveButton.style.color = 'white';
-            saveButton.style.border = 'none';
-            saveButton.style.padding = '10px';
-            saveButton.style.borderRadius = '5px';
-            saveButton.style.cursor = 'pointer';
-            saveButton.style.marginTop = '10px';
-
-            saveButton.addEventListener('click', () => {
-                // Update the post data
-                post.title = document.getElementById(`${boardId}Title`).value;
-                post.content = document.getElementById(`${boardId}Content`).innerHTML;
-
-                // Save updated post to localStorage
-                localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
-
-                // Re-render posts and clear the form
-                renderPosts(boardId);
-                document.getElementById(`${boardId}Title`).value = '';
-                document.getElementById(`${boardId}Content`).innerHTML = '';
-                saveButton.remove();
-            });
-
-            // Add the save button to the form if not already added
-            const form = document.querySelector(`#${boardId} .form`);
-            if (!form.contains(saveButton)) {
-                form.appendChild(saveButton);
-            }
         }
 
         function showPostDetails(post) {
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
-            document.getElementById('modalContent').innerHTML = post.content;
+            document.getElementById('modalContent').innerHTML = `<div style='max-height: 400px; overflow-y: auto;'>${post.content}</div>`;
             const modal = document.getElementById('postModal');
             modal.style.display = 'flex';
-            modal.scrollTop = 0;
         }
 
         function closeModal() {
@@ -399,11 +357,9 @@
             dragArea.textContent = fileList || '파일을 여기에 드래그하거나 클릭하세요';
         }
 
-        // Initialize boards
         renderPosts('morningLetter');
         renderPosts('caseStudy');
 
-        // Setup drag-and-drop
         setupDragAndDrop('morningLetterDragArea', 'morningLetterImage');
         setupDragAndDrop('caseStudyDragArea', 'caseStudyImage');
     </script>
