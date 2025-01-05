@@ -307,7 +307,9 @@
                 dragArea.classList.remove('dragover');
 
                 const files = e.dataTransfer.files;
-                fileInput.files = files;
+                const dataTransfer = new DataTransfer();
+                Array.from(files).forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
             });
         }
 
