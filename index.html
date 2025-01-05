@@ -234,6 +234,28 @@
         };
 
         function renderPosts(boardId) {
+    const boardPosts = document.getElementById(`${boardId}Posts`);
+    boardPosts.innerHTML = '';
+    if (!postsData[boardId]) {
+        console.error(`${boardId} 데이터가 없습니다.`);
+        return;
+    }
+
+    postsData[boardId].forEach((post, index) => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <img src="${post.images[0] || 'https://via.placeholder.com/100'}" alt="이미지">
+            <div class="post-content">
+                <h3>${post.title}</h3>
+                <p>${post.content}</p>
+            </div>
+            <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
+        `;
+        postElement.addEventListener('click', () => showPostDetails(post));
+        boardPosts.appendChild(postElement);
+    });
+}
             const boardPosts = document.getElementById(`${boardId}Posts`);
             boardPosts.innerHTML = '';
             if (!postsData[boardId]) {
@@ -257,6 +279,27 @@
         }
 
         function addPost(boardId) {
+    const title = document.getElementById(`${boardId}Title`).value;
+    const content = document.getElementById(`${boardId}Content`).innerHTML;
+    const imageInput = document.getElementById(`${boardId}Image`);
+    const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
+
+    if (title) {
+        if (!postsData[boardId]) {
+            postsData[boardId] = [];
+        }
+        postsData[boardId].push({ title, content, images });
+        localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+        renderPosts(boardId);
+
+        // Clear input fields
+        document.getElementById(`${boardId}Title`).value = '';
+        document.getElementById(`${boardId}Content`).innerHTML = '';
+        imageInput.value = '';
+    } else {
+        alert('제목을 입력하세요.');
+    }
+}
             const title = document.getElementById(`${boardId}Title`).value;
             const content = document.getElementById(`${boardId}Content`).innerHTML;
             const imageInput = document.getElementById(`${boardId}Image`);
@@ -280,6 +323,13 @@
         }
 
         function showPostDetails(post) {
+    document.getElementById('modalTitle').textContent = post.title;
+    document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
+    document.getElementById('modalContent').innerHTML = post.content; // Preserve formatting
+    const modal = document.getElementById('postModal');
+    modal.style.display = 'flex';
+    modal.scrollTop = 0; // Reset scroll position to top
+}
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
             document.getElementById('modalContent').innerHTML = post.content; // Preserve formatting
@@ -292,7 +342,24 @@
             document.getElementById('postModal').style.display = 'none';
         }
 
-        function closeModalByClick(event) {
+        function editPost(boardId, index) {
+    const post = postsData[boardId][index];
+    document.getElementById(`${boardId}Title`).value = post.title;
+    document.getElementById(`${boardId}Content`).innerHTML = post.content;
+    const imageInput = document.getElementById(`${boardId}Image`);
+    // Note: Existing images cannot be reloaded into the input field, but new images can be added.
+
+    // Remove the existing post for updating
+    postsData[boardId].splice(index, 1);
+    localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+    renderPosts(boardId);
+}
+
+function closeModalByClick(event) {
+    if (event.target.id === 'postModal') {
+        closeModal();
+    }
+}
             if (event.target.id === 'postModal') {
                 closeModal();
             }
