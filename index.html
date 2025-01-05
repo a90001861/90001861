@@ -321,6 +321,9 @@
                 const dataTransfer = new DataTransfer();
                 Array.from(files).forEach(file => dataTransfer.items.add(file));
                 fileInput.files = dataTransfer.files;
+
+                // Debugging: Log files to ensure they are added correctly
+                console.log(`Files added to ${inputId}:`, fileInput.files);
             });
         }
 
