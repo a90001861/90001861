@@ -233,7 +233,28 @@
         };
 
         function renderPosts(boardId) {
-            const boardPosts = document.getElementById(`${boardId}Posts`);
+    const boardPosts = document.getElementById(`${boardId}Posts`);
+    boardPosts.innerHTML = '';
+    if (!postsData[boardId]) {
+        console.error(`${boardId} 데이터가 없습니다.`);
+        return;
+    }
+
+    postsData[boardId].forEach((post, index) => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <img src="${post.images[0] || 'https://via.placeholder.com/100'}" alt="이미지">
+            <div class="post-content">
+                <h3>${post.title}</h3>
+                <p>${post.content}</p>
+            </div>
+            <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
+        `;
+        postElement.addEventListener('click', () => showPostDetails(post));
+        boardPosts.appendChild(postElement);
+    });
+}Posts`);
             boardPosts.innerHTML = '';
             if (!postsData[boardId]) {
                 console.error(`${boardId} 데이터가 없습니다.`);
@@ -257,7 +278,39 @@
         }
 
         function addPost(boardId) {
-            const title = document.getElementById(`${boardId}Title`).value;
+    const title = document.getElementById(`${boardId}Title`).value;
+    const content = document.getElementById(`${boardId}Content`).innerHTML;
+    const imageInput = document.getElementById(`${boardId}Image`);
+
+    const images = Array.from(imageInput.files).map(file => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    });
+
+    Promise.all(images).then(imageDataUrls => {
+        if (title) {
+            if (!postsData[boardId]) {
+                postsData[boardId] = [];
+            }
+            postsData[boardId].push({ title, content, images: imageDataUrls });
+            localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+            renderPosts(boardId);
+
+            // Clear input fields
+            document.getElementById(`${boardId}Title`).value = '';
+            document.getElementById(`${boardId}Content`).innerHTML = '';
+            imageInput.value = '';
+        } else {
+            alert('제목을 입력하세요.');
+        }
+    }).catch(error => {
+        console.error('이미지 업로드 중 오류 발생:', error);
+    });
+}Title`).value;
             const content = document.getElementById(`${boardId}Content`).innerHTML;
             const imageInput = document.getElementById(`${boardId}Image`);
             const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
@@ -310,15 +363,41 @@
         }
 
         function setupDragAndDrop(dragAreaId, inputId) {
-            const dragArea = document.getElementById(dragAreaId);
-            const fileInput = document.getElementById(inputId);
+    const dragArea = document.getElementById(dragAreaId);
+    const fileInput = document.getElementById(inputId);
 
-            dragArea.addEventListener('click', () => fileInput.click());
+    dragArea.addEventListener('click', () => fileInput.click());
 
-            dragArea.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dragArea.classList.add('dragover');
-            });
+    dragArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dragArea.classList.add('dragover');
+    });
+
+    dragArea.addEventListener('dragleave', () => {
+        dragArea.classList.remove('dragover');
+    });
+
+    dragArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragArea.classList.remove('dragover');
+
+        const files = e.dataTransfer.files;
+        const dataTransfer = new DataTransfer();
+        Array.from(files).forEach(file => dataTransfer.items.add(file));
+        fileInput.files = dataTransfer.files;
+
+        displaySelectedFiles(fileInput, dragArea);
+    });
+
+    fileInput.addEventListener('change', () => {
+        displaySelectedFiles(fileInput, dragArea);
+    });
+}
+
+function displaySelectedFiles(fileInput, dragArea) {
+    const fileList = Array.from(fileInput.files).map(file => file.name).join(', ');
+    dragArea.textContent = fileList || '파일을 여기에 드래그하거나 클릭하세요';
+});
 
             dragArea.addEventListener('dragleave', () => {
                 dragArea.classList.remove('dragover');
