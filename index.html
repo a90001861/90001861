@@ -259,16 +259,8 @@
         function addPost(boardId) {
             const title = document.getElementById(`${boardId}Title`).value;
             const content = document.getElementById(`${boardId}Content`).innerHTML;
-            const imageInput = document.getElement
             const imageInput = document.getElementById(`${boardId}Image`);
-            const images = Array.from(imageInput.files).map(file => {
-                if (file.type.startsWith("image/")) {
-                    return URL.createObjectURL(file);
-                } else {
-                    alert("이미지 파일만 업로드할 수 있습니다.");
-                    return null;
-                }
-            }).filter(url => url !== null);
+            const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
 
             if (title) {
                 if (!postsData[boardId]) {
@@ -277,10 +269,6 @@
                 postsData[boardId].push({ title, content, images });
                 localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
                 renderPosts(boardId);
-
-                // Debugging logs
-                console.log(`Added post to ${boardId}:`, { title, content, images });
-                console.log(`Updated postsData:`, postsData);
 
                 // Clear input fields
                 document.getElementById(`${boardId}Title`).value = '';
@@ -344,8 +332,6 @@
                 const dataTransfer = new DataTransfer();
                 Array.from(files).forEach(file => dataTransfer.items.add(file));
                 fileInput.files = dataTransfer.files;
-
-                console.log(`Files added to ${inputId}:`, fileInput.files);
             });
         }
 
