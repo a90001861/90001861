@@ -184,7 +184,7 @@
 <body>
     <div class="header">
         아침편지와 치험례 게시판
-        <a href="https://seemyung.github.io/90001861/" class="order-btn">팜스제품주문서</a>
+        <a href="https://seemyung.github.io/90001861/" class="order-btn" onclick="location.reload(); return false;">팜스제품주문서</a>
     </div>
 
     <div class="container">
@@ -195,7 +195,7 @@
             <div class="form">
                 <h3>새 글 작성</h3>
                 <input type="text" id="morningLetterTitle" placeholder="제목">
-                <textarea id="morningLetterContent" rows="4" placeholder="내용"></textarea>
+                <div id="morningLetterContent" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 100px; overflow-y: auto;" placeholder="내용"></div>
                 <div class="drag-area" id="morningLetterDragArea">파일을 여기에 드래그하거나 클릭하세요</div>
                 <input type="file" id="morningLetterImage" multiple style="display: none;">
                 <button onclick="addPost('morningLetter')">등록</button>
@@ -209,7 +209,7 @@
             <div class="form">
                 <h3>새 글 작성</h3>
                 <input type="text" id="caseStudyTitle" placeholder="제목">
-                <textarea id="caseStudyContent" rows="4" placeholder="내용"></textarea>
+                <div id="caseStudyContent" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 100px; overflow-y: auto;" placeholder="내용"></div>
                 <div class="drag-area" id="caseStudyDragArea">파일을 여기에 드래그하거나 클릭하세요</div>
                 <input type="file" id="caseStudyImage" multiple style="display: none;">
                 <button onclick="addPost('caseStudy')">등록</button>
@@ -258,7 +258,7 @@
 
         function addPost(boardId) {
             const title = document.getElementById(`${boardId}Title`).value;
-            const content = document.getElementById(`${boardId}Content`).value;
+            const content = document.getElementById(`${boardId}Content`).innerHTML;
             const imageInput = document.getElementById(`${boardId}Image`);
             const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
 
