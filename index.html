@@ -142,6 +142,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            overflow-y: auto; /* Allow scrolling for longer content */
         }
         .modal-content {
             background: white;
@@ -163,6 +164,8 @@
         .modal-content p {
             font-size: 1rem;
             color: #555;
+            text-align: left;
+            white-space: pre-wrap; /* Preserve formatting */
         }
         .close-modal {
             margin-top: 20px;
@@ -279,7 +282,7 @@
         function showPostDetails(post) {
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
-            document.getElementById('modalContent').textContent = post.content;
+            document.getElementById('modalContent').innerHTML = post.content; // Preserve formatting
             document.getElementById('postModal').style.display = 'flex';
         }
 
