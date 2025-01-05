@@ -291,6 +291,30 @@
         localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
         renderPosts(boardId);
 
+        // Debugging logs
+        console.log(`Added post to ${boardId}:`, { title, content, images });
+        console.log(`Updated postsData:`, postsData);
+
+        // Clear input fields
+        document.getElementById(`${boardId}Title`).value = '';
+        document.getElementById(`${boardId}Content`).innerHTML = '';
+        imageInput.value = '';
+    } else {
+        alert('제목을 입력하세요.');
+    }
+}Title`).value;
+    const content = document.getElementById(`${boardId}Content`).innerHTML;
+    const imageInput = document.getElementById(`${boardId}Image`);
+    const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
+
+    if (title) {
+        if (!postsData[boardId]) {
+            postsData[boardId] = [];
+        }
+        postsData[boardId].push({ title, content, images });
+        localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+        renderPosts(boardId);
+
         // Clear input fields
         document.getElementById(`${boardId}Title`).value = '';
         document.getElementById(`${boardId}Content`).innerHTML = '';
