@@ -15,7 +15,7 @@
         }
         .container {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
             max-width: 1200px;
             margin: 20px auto;
@@ -117,6 +117,9 @@
             font-size: 1rem;
         }
         @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
             .board h1 {
                 font-size: 1.25rem;
             }
@@ -128,7 +131,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- 게시판 1 -->
+        <!-- 아침편지 게시판 -->
         <div class="board">
             <h1>아침편지</h1>
             <div id="posts1"></div>
@@ -150,15 +153,33 @@
             </div>
         </div>
 
-        <!-- Additional boards omitted for brevity -->
+        <!-- 치험례 게시판 -->
+        <div class="board">
+            <h1>치험례</h1>
+            <div id="posts2"></div>
+            <div class="details" id="details2">
+                <h2 id="detailsTitle2"></h2>
+                <img id="detailsImage2" src="" alt="">
+                <p id="detailsContent2"></p>
+                <button onclick="deletePost(2)">삭제</button>
+                <button onclick="editPost(2)">수정</button>
+                <button onclick="closeDetails(2)">닫기</button>
+            </div>
+            <div class="form">
+                <h2>새 글 작성</h2>
+                <input type="text" id="title2" placeholder="제목">
+                <div id="content2" class="contenteditable" contenteditable="true" placeholder="내용"></div>
+                <input type="file" id="image2" accept="image/*" onchange="previewImage(2)">
+                <img id="preview2" style="display:none; width: 100px; margin-top: 10px;">
+                <button onclick="addPost(2)">등록</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const postsData = {
             1: [],
-            2: [],
-            3: [],
-            4: []
+            2: []
         };
         let editingIndex = -1; // Tracks the post being edited
 
@@ -262,7 +283,7 @@
         }
 
         // 초기 렌더링
-        for (let i = 1; i <= 4; i++) {
+        for (let i = 1; i <= 2; i++) {
             renderPosts(i);
         }
     </script>
