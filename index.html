@@ -250,6 +250,28 @@
                 <p>${post.content}</p>
             </div>
             <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
+            <button class='delete-post' onclick='deletePost("${boardId}", ${index})'>삭제</button>
+        `;
+        postElement.addEventListener('click', () => showPostDetails(post));
+        boardPosts.appendChild(postElement);
+    });
+}Posts`);
+    boardPosts.innerHTML = '';
+    if (!postsData[boardId]) {
+        console.error(`${boardId} 데이터가 없습니다.`);
+        return;
+    }
+
+    postsData[boardId].forEach((post, index) => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <img src="${post.images[0] || 'https://via.placeholder.com/100'}" alt="이미지">
+            <div class="post-content">
+                <h3>${post.title}</h3>
+                <p>${post.content}</p>
+            </div>
+            <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
         `;
         postElement.addEventListener('click', () => showPostDetails(post));
         boardPosts.appendChild(postElement);
@@ -333,8 +355,44 @@
         }
 
         function editPost(boardId, index) {
-            const post = postsData[boardId][index];
-            document.getElementById(`${boardId}Title`).value = post.title;
+    const post = postsData[boardId][index];
+
+    // Populate the form fields with the existing post data
+    document.getElementById(`${boardId}Title`).value = post.title;
+    document.getElementById(`${boardId}Content`).innerHTML = post.content;
+
+    // Attach a save button for the edit
+    const saveButton = document.createElement('button');
+    saveButton.textContent = '수정 저장';
+    saveButton.style.backgroundColor = '#28a745';
+    saveButton.style.color = 'white';
+    saveButton.style.border = 'none';
+    saveButton.style.padding = '10px';
+    saveButton.style.borderRadius = '5px';
+    saveButton.style.cursor = 'pointer';
+    saveButton.style.marginTop = '10px';
+
+    saveButton.addEventListener('click', () => {
+        // Update the post data
+        post.title = document.getElementById(`${boardId}Title`).value;
+        post.content = document.getElementById(`${boardId}Content`).innerHTML;
+
+        // Save updated post to localStorage
+        localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+
+        // Re-render posts and clear the form
+        renderPosts(boardId);
+        document.getElementById(`${boardId}Title`).value = '';
+        document.getElementById(`${boardId}Content`).innerHTML = '';
+        saveButton.remove();
+    });
+
+    // Add the save button to the form if not already added
+    const form = document.querySelector(`#${boardId} .form`);
+    if (!form.contains(saveButton)) {
+        form.appendChild(saveButton);
+    }
+}Title`).value = post.title;
             document.getElementById(`${boardId}Content`).innerHTML = post.content;
 
             // Remove the existing post for updating
@@ -357,9 +415,18 @@
         }
 
         function closeModalByClick(event) {
-            if (event.target.id === 'postModal') {
-                closeModal();
-            }
+    if (event.target.id === 'postModal') {
+        closeModal();
+    }
+}
+
+function deletePost(boardId, index) {
+    if (confirm('정말로 삭제하시겠습니까?')) {
+        postsData[boardId].splice(index, 1);
+        localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+        renderPosts(boardId);
+    }
+}
         }
 
         function setupDragAndDrop(dragAreaId, inputId) {
