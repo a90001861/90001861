@@ -13,6 +13,26 @@
             background-color: #f9f9f9;
             color: #333;
         }
+        .header {
+            background: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 15px;
+            transition: color 0.3s ease;
+        }
+        .header a:hover {
+            color: #FFD700;
+        }
         .container {
             display: flex;
             gap: 20px;
@@ -140,6 +160,28 @@
         .drag-drop.dragover {
             background-color: #f0f8ff;
         }
+        .preview-container {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .preview-container img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .backup {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
         @media (max-width: 768px) {
             .board {
                 max-width: 100%;
@@ -148,6 +190,11 @@
     </style>
 </head>
 <body>
+    <div class="header">
+        <a href="/">홈</a>
+        <a href="https://seemyung.github.io/90001861/" target="_blank">제품주문서 바로가기</a>
+    </div>
+
     <div class="container">
         <!-- 아침편지 게시판 -->
         <div class="board">
@@ -166,10 +213,11 @@
                 <input type="text" id="title1" placeholder="제목">
                 <div id="content1" class="contenteditable" contenteditable="true" placeholder="내용"></div>
                 <div class="drag-drop" id="dragDrop1">이미지 파일을 여기에 드래그하거나 클릭하여 업로드</div>
-                <input type="file" id="image1" accept="image/*" style="display: none;" onchange="previewImage(1)">
-                <img id="preview1" style="display:none; width: 100px; margin-top: 10px;">
+                <input type="file" id="image1" accept="image/*" multiple style="display: none;" onchange="previewImages(1)">
+                <div class="preview-container" id="previewContainer1"></div>
                 <button onclick="addPost(1)">등록</button>
             </div>
+            <div class="backup" id="backup1"></div>
         </div>
 
         <!-- 치험례 게시판 -->
@@ -189,18 +237,16 @@
                 <input type="text" id="title2" placeholder="제목">
                 <div id="content2" class="contenteditable" contenteditable="true" placeholder="내용"></div>
                 <div class="drag-drop" id="dragDrop2">이미지 파일을 여기에 드래그하거나 클릭하여 업로드</div>
-                <input type="file" id="image2" accept="image/*" style="display: none;" onchange="previewImage(2)">
-                <img id="preview2" style="display:none; width: 100px; margin-top: 10px;">
+                <input type="file" id="image2" accept="image/*" multiple style="display: none;" onchange="previewImages(2)">
+                <div class="preview-container" id="previewContainer2"></div>
                 <button onclick="addPost(2)">등록</button>
             </div>
+            <div class="backup" id="backup2"></div>
         </div>
     </div>
 
     <script>
-        const postsData = {
-            1: [],
-            2: []
-        };
+        const postsData = JSON.parse(localStorage.getItem('postsData')) || { 1: [], 2: [] };
         let editingIndex = -1; // Tracks the post being edited
 
         function setupDragDrop(boardId) {
@@ -222,35 +268,38 @@
                 e.preventDefault();
                 dragDrop.classList.remove('dragover');
 
-                const file = e.dataTransfer.files[0];
-                if (file) {
-                    fileInput.files = e.dataTransfer.files;
-                    previewImage(boardId);
-                }
+                const files = Array.from(e.dataTransfer.files);
+                const fileInput = document.getElementById(`image${boardId}`);
+                const dataTransfer = new DataTransfer();
+
+                files.forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+                previewImages(boardId);
             });
         }
 
-        function previewImage(boardId) {
+        function previewImages(boardId) {
             const fileInput = document.getElementById(`image${boardId}`);
-            const preview = document.getElementById(`preview${boardId}`);
-            const file = fileInput.files[0];
+            const previewContainer = document.getElementById(`previewContainer${boardId}`);
 
-            if (file) {
+            previewContainer.innerHTML = '';
+            Array.from(fileInput.files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    previewContainer.appendChild(img);
                 };
                 reader.readAsDataURL(file);
-            } else {
-                preview.src = '';
-                preview.style.display = 'none';
-            }
+            });
         }
 
         function renderPosts(boardId) {
             const postsContainer = document.getElementById(`posts${boardId}`);
+            const backupContainer = document.getElementById(`backup${boardId}`);
             postsContainer.innerHTML = '';
+            backupContainer.textContent = JSON.stringify(postsData[boardId], null, 2);
+
             postsData[boardId].forEach((post, index) => {
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
@@ -285,23 +334,25 @@
             const title = document.getElementById(`title${boardId}`).value;
             const contentDiv = document.getElementById(`content${boardId}`);
             const content = contentDiv.innerHTML;
-            const preview = document.getElementById(`preview${boardId}`);
-            const image = preview.src || 'https://via.placeholder.com/150';
+            const previewContainer = document.getElementById(`previewContainer${boardId}`);
+
+            const images = Array.from(previewContainer.querySelectorAll('img')).map(img => img.src);
 
             if (title && content.trim()) {
                 if (editingIndex > -1) {
                     // Update existing post
-                    postsData[boardId][editingIndex] = { title, content, image };
+                    postsData[boardId][editingIndex] = { title, content, images };
                     editingIndex = -1;
                 } else {
                     // Add new post
-                    postsData[boardId].push({ title, content, image });
+                    postsData[boardId].push({ title, content, images });
                 }
 
+                localStorage.setItem('postsData', JSON.stringify(postsData));
                 document.getElementById(`title${boardId}`).value = '';
                 contentDiv.innerHTML = '';
                 document.getElementById(`image${boardId}`).value = '';
-                preview.style.display = 'none';
+                previewContainer.innerHTML = '';
                 renderPosts(boardId);
             } else {
                 alert('제목과 내용을 입력하세요.');
@@ -311,6 +362,7 @@
         function deletePost(boardId) {
             if (editingIndex > -1) {
                 postsData[boardId].splice(editingIndex, 1);
+                localStorage.setItem('postsData', JSON.stringify(postsData));
                 closeDetails(boardId);
                 renderPosts(boardId);
             }
@@ -321,8 +373,16 @@
                 const post = postsData[boardId][editingIndex];
                 document.getElementById(`title${boardId}`).value = post.title;
                 document.getElementById(`content${boardId}`).innerHTML = post.content;
-                document.getElementById(`preview${boardId}`).src = post.image;
-                document.getElementById(`preview${boardId}`).style.display = 'block';
+
+                const previewContainer = document.getElementById(`previewContainer${boardId}`);
+                previewContainer.innerHTML = '';
+
+                post.images.forEach(image => {
+                    const img = document.createElement('img');
+                    img.src = image;
+                    previewContainer.appendChild(img);
+                });
+
                 closeDetails(boardId);
             }
         }
