@@ -183,7 +183,7 @@
 </head>
 <body>
     <div class="header" onclick="location.reload()">아침편지와 치험례 게시판
-        <a href="https://seemyung.github.io/90001861/" class="order-btn" onclick="location.reload(); return false;">팜스제품주문서</a>
+        <a href="https://seemyung.github.io/90001861/" class="order-btn">팜스제품주문서</a>
     </div>
 
     <div class="container">
@@ -194,7 +194,7 @@
             <div class="form">
                 <h3>새 글 작성</h3>
                 <input type="text" id="morningLetterTitle" placeholder="제목">
-                <div id="morningLetterContent" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 100px; overflow-y: auto;" placeholder="내용"></div>
+                <div id="morningLetterContent" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 100px; overflow-y: auto;"></div>
                 <div class="drag-area" id="morningLetterDragArea">파일을 여기에 드래그하거나 클릭하세요</div>
                 <input type="file" id="morningLetterImage" multiple style="display: none;">
                 <button onclick="addPost('morningLetter')">등록</button>
@@ -208,7 +208,7 @@
             <div class="form">
                 <h3>새 글 작성</h3>
                 <input type="text" id="caseStudyTitle" placeholder="제목">
-                <div id="caseStudyContent" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 100px; overflow-y: auto;" placeholder="내용"></div>
+                <div id="caseStudyContent" contenteditable="true" style="border: 1px solid #ccc; padding: 10px; border-radius: 5px; height: 100px; overflow-y: auto;"></div>
                 <div class="drag-area" id="caseStudyDragArea">파일을 여기에 드래그하거나 클릭하세요</div>
                 <input type="file" id="caseStudyImage" multiple style="display: none;">
                 <button onclick="addPost('caseStudy')">등록</button>
@@ -233,28 +233,6 @@
         };
 
         function renderPosts(boardId) {
-    const boardPosts = document.getElementById(`${boardId}Posts`);
-    boardPosts.innerHTML = '';
-    if (!postsData[boardId]) {
-        console.error(`${boardId} 데이터가 없습니다.`);
-        return;
-    }
-
-    postsData[boardId].forEach((post, index) => {
-        const postElement = document.createElement('div');
-        postElement.className = 'post';
-        postElement.innerHTML = `
-            <img src="${post.images[0] || 'https://via.placeholder.com/100'}" alt="이미지">
-            <div class="post-content">
-                <h3>${post.title}</h3>
-                <p>${post.content}</p>
-            </div>
-            <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
-        `;
-        postElement.addEventListener('click', () => showPostDetails(post));
-        boardPosts.appendChild(postElement);
-    });
-}
             const boardPosts = document.getElementById(`${boardId}Posts`);
             boardPosts.innerHTML = '';
             if (!postsData[boardId]) {
@@ -271,6 +249,7 @@
                         <h3>${post.title}</h3>
                         <p>${post.content}</p>
                     </div>
+                    <button class='edit-post' onclick='editPost("${boardId}", ${index})'>수정</button>
                 `;
                 postElement.addEventListener('click', () => showPostDetails(post));
                 boardPosts.appendChild(postElement);
@@ -278,57 +257,20 @@
         }
 
         function addPost(boardId) {
-    const title = document.getElementById(`${boardId}Title`).value;
-    const content = document.getElementById(`${boardId}Content`).innerHTML;
-    const imageInput = document.getElementById(`${boardId}Image`);
-    const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
-
-    if (title) {
-        if (!postsData[boardId]) {
-            postsData[boardId] = [];
-        }
-        postsData[boardId].push({ title, content, images });
-        localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
-        renderPosts(boardId);
-
-        // Debugging logs
-        console.log(`Added post to ${boardId}:`, { title, content, images });
-        console.log(`Updated postsData:`, postsData);
-
-        // Clear input fields
-        document.getElementById(`${boardId}Title`).value = '';
-        document.getElementById(`${boardId}Content`).innerHTML = '';
-        imageInput.value = '';
-    } else {
-        alert('제목을 입력하세요.');
-    }
-}Title`).value;
-    const content = document.getElementById(`${boardId}Content`).innerHTML;
-    const imageInput = document.getElementById(`${boardId}Image`);
-    const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
-
-    if (title) {
-        if (!postsData[boardId]) {
-            postsData[boardId] = [];
-        }
-        postsData[boardId].push({ title, content, images });
-        localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
-        renderPosts(boardId);
-
-        // Clear input fields
-        document.getElementById(`${boardId}Title`).value = '';
-        document.getElementById(`${boardId}Content`).innerHTML = '';
-        imageInput.value = '';
-    } else {
-        alert('제목을 입력하세요.');
-    }
-}
             const title = document.getElementById(`${boardId}Title`).value;
             const content = document.getElementById(`${boardId}Content`).innerHTML;
+            const imageInput = document.getElement
             const imageInput = document.getElementById(`${boardId}Image`);
-            const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
+            const images = Array.from(imageInput.files).map(file => {
+                if (file.type.startsWith("image/")) {
+                    return URL.createObjectURL(file);
+                } else {
+                    alert("이미지 파일만 업로드할 수 있습니다.");
+                    return null;
+                }
+            }).filter(url => url !== null);
 
-            if (title && content) {
+            if (title) {
                 if (!postsData[boardId]) {
                     postsData[boardId] = [];
                 }
@@ -336,53 +278,44 @@
                 localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
                 renderPosts(boardId);
 
+                // Debugging logs
+                console.log(`Added post to ${boardId}:`, { title, content, images });
+                console.log(`Updated postsData:`, postsData);
+
                 // Clear input fields
                 document.getElementById(`${boardId}Title`).value = '';
-                document.getElementById(`${boardId}Content`).value = '';
+                document.getElementById(`${boardId}Content`).innerHTML = '';
                 imageInput.value = '';
             } else {
-                alert('제목과 내용을 입력하세요.');
+                alert('제목을 입력하세요.');
             }
         }
 
+        function editPost(boardId, index) {
+            const post = postsData[boardId][index];
+            document.getElementById(`${boardId}Title`).value = post.title;
+            document.getElementById(`${boardId}Content`).innerHTML = post.content;
+
+            // Remove the existing post for updating
+            postsData[boardId].splice(index, 1);
+            localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
+            renderPosts(boardId);
+        }
+
         function showPostDetails(post) {
-    document.getElementById('modalTitle').textContent = post.title;
-    document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
-    document.getElementById('modalContent').innerHTML = post.content; // Preserve formatting
-    const modal = document.getElementById('postModal');
-    modal.style.display = 'flex';
-    modal.scrollTop = 0; // Reset scroll position to top
-}
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
-            document.getElementById('modalContent').innerHTML = post.content; // Preserve formatting
+            document.getElementById('modalContent').innerHTML = post.content;
             const modal = document.getElementById('postModal');
             modal.style.display = 'flex';
-            modal.scrollTop = 0; // Reset scroll position to top
+            modal.scrollTop = 0;
         }
 
         function closeModal() {
             document.getElementById('postModal').style.display = 'none';
         }
 
-        function editPost(boardId, index) {
-    const post = postsData[boardId][index];
-    document.getElementById(`${boardId}Title`).value = post.title;
-    document.getElementById(`${boardId}Content`).innerHTML = post.content;
-    const imageInput = document.getElementById(`${boardId}Image`);
-    // Note: Existing images cannot be reloaded into the input field, but new images can be added.
-
-    // Remove the existing post for updating
-    postsData[boardId].splice(index, 1);
-    localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
-    renderPosts(boardId);
-}
-
-function closeModalByClick(event) {
-    if (event.target.id === 'postModal') {
-        closeModal();
-    }
-}
+        function closeModalByClick(event) {
             if (event.target.id === 'postModal') {
                 closeModal();
             }
@@ -412,7 +345,6 @@ function closeModalByClick(event) {
                 Array.from(files).forEach(file => dataTransfer.items.add(file));
                 fileInput.files = dataTransfer.files;
 
-                // Debugging: Log files to ensure they are added correctly
                 console.log(`Files added to ${inputId}:`, fileInput.files);
             });
         }
