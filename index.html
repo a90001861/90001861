@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 10px;
+        }
+        .board {
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .post {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+        .post:last-child {
+            border-bottom: none;
+        }
+        .post img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+        .post h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .post p {
+            color: #555;
+            font-size: 14px;
+        }
+        .form {
+            margin-top: 20px;
+        }
+        .form input, .form textarea, .form button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .form button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 게시판 1 -->
+        <div class="board">
+            <h1>아침편지</h1>
+            <div id="posts1"></div>
+            <div class="form">
+                <h2>새 글 작성</h2>
+                <input type="text" id="title1" placeholder="제목">
+                <textarea id="content1" placeholder="내용"></textarea>
+                <input type="text" id="image1" placeholder="이미지 URL">
+                <button onclick="addPost(1)">등록</button>
+            </div>
+        </div>
+
+        <!-- 게시판 2 -->
+        <div class="board">
+            <h1>치험례</h1>
+            <div id="posts2"></div>
+            <div class="form">
+                <h2>새 글 작성</h2>
+                <input type="text" id="title2" placeholder="제목">
+                <textarea id="content2" placeholder="내용"></textarea>
+                <input type="text" id="image2" placeholder="이미지 URL">
+                <button onclick="addPost(2)">등록</button>
+            </div>
+        </div>
+
+        <!-- 게시판 3 -->
+        <div class="board">
+            <h1>게시판 1</h1>
+            <div id="posts3"></div>
+            <div class="form">
+                <h2>새 글 작성</h2>
+                <input type="text" id="title3" placeholder="제목">
+                <textarea id="content3" placeholder="내용"></textarea>
+                <input type="text" id="image3" placeholder="이미지 URL">
+                <button onclick="addPost(3)">등록</button>
+            </div>
+        </div>
+
+        <!-- 게시판 4 -->
+        <div class="board">
+            <h1>게시판 2</h1>
+            <div id="posts4"></div>
+            <div class="form">
+                <h2>새 글 작성</h2>
+                <input type="text" id="title4" placeholder="제목">
+                <textarea id="content4" placeholder="내용"></textarea>
+                <input type="text" id="image4" placeholder="이미지 URL">
+                <button onclick="addPost(4)">등록</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const postsData = {
+            1: [],
+            2: [],
+            3: [],
+            4: []
+        };
+
+        function renderPosts(boardId) {
+            const postsContainer = document.getElementById(`posts${boardId}`);
+            postsContainer.innerHTML = '';
+            postsData[boardId].forEach(post => {
+                const postElement = document.createElement('div');
+                postElement.classList.add('post');
+                postElement.innerHTML = `
+                    <img src="${post.image}" alt="대표 이미지">
+                    <div>
+                        <h3>${post.title}</h3>
+                        <p>${post.content}</p>
+                    </div>
+                `;
+                postsContainer.appendChild(postElement);
+            });
+        }
+
+        function addPost(boardId) {
+            const title = document.getElementById(`title${boardId}`).value;
+            const content = document.getElementById(`content${boardId}`).value;
+            const image = document.getElementById(`image${boardId}`).value || 'https://via.placeholder.com/50';
+
+            if (title && content) {
+                postsData[boardId].push({ title, content, image });
+                document.getElementById(`title${boardId}`).value = '';
+                document.getElementById(`content${boardId}`).value = '';
+                document.getElementById(`image${boardId}`).value = '';
+                renderPosts(boardId);
+            } else {
+                alert('제목과 내용을 입력하세요.');
+            }
+        }
+
+        // 초기 렌더링
+        for (let i = 1; i <= 4; i++) {
+            renderPosts(i);
+        }
+    </script>
+</body>
+</html>
