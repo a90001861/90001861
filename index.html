@@ -50,6 +50,7 @@
             border-radius: 5px;
             background-color: white;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
         }
         .post img {
             flex-shrink: 0;
@@ -117,6 +118,51 @@
         .sync-buttons button:hover {
             background-color: #0056b3;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+        .modal-content img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .modal-content p {
+            font-size: 1rem;
+            color: #555;
+        }
+        .close-modal {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .close-modal:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -160,6 +206,16 @@
         </div>
     </div>
 
+    <!-- Modal for post details -->
+    <div class="modal" id="postModal">
+        <div class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <img id="modalImage" src="" alt="게시물 이미지">
+            <p id="modalContent"></p>
+            <button class="close-modal" onclick="closeModal()">닫기</button>
+        </div>
+    </div>
+
     <script>
         const postsData = {
             morningLetter: [],
@@ -179,6 +235,7 @@
                         <p>${post.content}</p>
                     </div>
                 `;
+                postElement.addEventListener('click', () => showPostDetails(post));
                 boardPosts.appendChild(postElement);
             });
         }
@@ -216,6 +273,17 @@
             } else {
                 alert('저장된 데이터가 없습니다.');
             }
+        }
+
+        function showPostDetails(post) {
+            document.getElementById('modalTitle').textContent = post.title;
+            document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
+            document.getElementById('modalContent').textContent = post.content;
+            document.getElementById('postModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('postModal').style.display = 'none';
         }
 
         // Initialize boards
