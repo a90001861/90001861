@@ -33,6 +33,21 @@
         .header a:hover {
             color: #FFD700;
         }
+        .header .button {
+            background-color: #FFD700;
+            color: #007BFF;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        .header .button:hover {
+            background-color: #FFC107;
+            color: white;
+        }
         .container {
             display: flex;
             gap: 20px;
@@ -182,6 +197,22 @@
             font-size: 0.9rem;
             overflow-x: auto;
         }
+        .backup.hidden {
+            display: none;
+        }
+        .backup-toggle {
+            margin-top: 10px;
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .backup-toggle:hover {
+            background: #0056b3;
+        }
         @media (max-width: 768px) {
             .board {
                 max-width: 100%;
@@ -192,7 +223,7 @@
 <body>
     <div class="header">
         <a href="/">홈</a>
-        <a href="https://seemyung.github.io/90001861/" target="_blank">제품주문서 바로가기</a>
+        <a href="https://seemyung.github.io/90001861/" target="_blank" class="button">제품주문서 바로가기</a>
     </div>
 
     <div class="container">
@@ -217,7 +248,8 @@
                 <div class="preview-container" id="previewContainer1"></div>
                 <button onclick="addPost(1)">등록</button>
             </div>
-            <div class="backup" id="backup1"></div>
+            <button class="backup-toggle" onclick="toggleBackup(1)">백업 보기/숨기기</button>
+            <div class="backup hidden" id="backup1"></div>
         </div>
 
         <!-- 치험례 게시판 -->
@@ -241,7 +273,8 @@
                 <div class="preview-container" id="previewContainer2"></div>
                 <button onclick="addPost(2)">등록</button>
             </div>
-            <div class="backup" id="backup2"></div>
+            <button class="backup-toggle" onclick="toggleBackup(2)">백업 보기/숨기기</button>
+            <div class="backup hidden" id="backup2"></div>
         </div>
     </div>
 
@@ -269,7 +302,6 @@
                 dragDrop.classList.remove('dragover');
 
                 const files = Array.from(e.dataTransfer.files);
-                const fileInput = document.getElementById(`image${boardId}`);
                 const dataTransfer = new DataTransfer();
 
                 files.forEach(file => dataTransfer.items.add(file));
@@ -304,7 +336,7 @@
                 const postElement = document.createElement('div');
                 postElement.classList.add('post');
                 postElement.innerHTML = `
-                    <img src="${post.image}" alt="대표 이미지">
+                    <img src="${post.images[0] || 'https://via.placeholder.com/150'}" alt="대표 이미지">
                     <h3>${post.title}</h3>
                 `;
                 postElement.addEventListener('click', () => showDetails(boardId, index));
@@ -312,12 +344,17 @@
             });
         }
 
+        function toggleBackup(boardId) {
+            const backupContainer = document.getElementById(`backup${boardId}`);
+            backupContainer.classList.toggle('hidden');
+        }
+
         function showDetails(boardId, index) {
             const details = document.getElementById(`details${boardId}`);
             const post = postsData[boardId][index];
 
             document.getElementById(`detailsTitle${boardId}`).textContent = post.title;
-            document.getElementById(`detailsImage${boardId}`).src = post.image;
+            document.getElementById(`detailsImage${boardId}`).src = post.images[0] || 'https://via.placeholder.com/150';
             document.getElementById(`detailsContent${boardId}`).innerHTML = post.content;
 
             details.style.display = 'block';
