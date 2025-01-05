@@ -14,9 +14,9 @@
             color: #333;
         }
         .header {
-            background: #007BFF;
+            background: linear-gradient(135deg, #FF7F50, #FF4500);
             color: white;
-            padding: 10px 20px;
+            padding: 20px 40px;
             text-align: center;
             position: sticky;
             top: 0;
@@ -27,26 +27,16 @@
             color: white;
             text-decoration: none;
             font-weight: bold;
+            font-size: 1.5rem;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
             margin: 0 15px;
-            transition: color 0.3s ease;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
         .header a:hover {
-            color: #FFD700;
-        }
-        .header .button {
-            background-color: #FFD700;
-            color: #007BFF;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-            margin-left: 20px;
-        }
-        .header .button:hover {
-            background-color: #FFC107;
-            color: white;
+            background-color: white;
+            color: #FF4500;
         }
         .container {
             display: flex;
@@ -118,12 +108,19 @@
             margin-top: 0;
             font-size: 1.25rem;
         }
-        .details img {
-            max-width: 100%;
+        .details .images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .details .images img {
+            flex: 1 1 calc(50% - 10px);
+            max-width: calc(50% - 10px);
             max-height: 300px;
             object-fit: contain;
             border-radius: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
         }
         .details p {
             max-height: 200px;
@@ -222,8 +219,7 @@
 </head>
 <body>
     <div class="header">
-        <a href="/">홈</a>
-        <a href="https://seemyung.github.io/90001861/" target="_blank" class="button">제품주문서 바로가기</a>
+        <a href="https://seemyung.github.io/90001861/" target="_blank">📦 제품주문서 바로가기</a>
     </div>
 
     <div class="container">
@@ -233,7 +229,7 @@
             <div class="posts" id="posts1"></div>
             <div class="details" id="details1">
                 <h2 id="detailsTitle1"></h2>
-                <img id="detailsImage1" src="" alt="">
+                <div class="images" id="detailsImages1"></div>
                 <p id="detailsContent1"></p>
                 <button onclick="deletePost(1)">삭제</button>
                 <button onclick="editPost(1)">수정</button>
@@ -258,7 +254,7 @@
             <div class="posts" id="posts2"></div>
             <div class="details" id="details2">
                 <h2 id="detailsTitle2"></h2>
-                <img id="detailsImage2" src="" alt="">
+                <div class="images" id="detailsImages2"></div>
                 <p id="detailsContent2"></p>
                 <button onclick="deletePost(2)">삭제</button>
                 <button onclick="editPost(2)">수정</button>
@@ -354,9 +350,16 @@
             const post = postsData[boardId][index];
 
             document.getElementById(`detailsTitle${boardId}`).textContent = post.title;
-            document.getElementById(`detailsImage${boardId}`).src = post.images[0] || 'https://via.placeholder.com/150';
-            document.getElementById(`detailsContent${boardId}`).innerHTML = post.content;
+            const detailsImagesContainer = document.getElementById(`detailsImages${boardId}`);
+            detailsImagesContainer.innerHTML = '';
 
+            post.images.forEach(image => {
+                const img = document.createElement('img');
+                img.src = image;
+                detailsImagesContainer.appendChild(img);
+            });
+
+            document.getElementById(`detailsContent${boardId}`).innerHTML = post.content;
             details.style.display = 'block';
             editingIndex = index;
         }
@@ -425,10 +428,4 @@
         }
 
         // 초기 렌더링 및 드래그앤드롭 설정
-        for (let i = 1; i <= 2; i++) {
-            renderPosts(i);
-            setupDragDrop(i);
-        }
-    </script>
-</body>
-</html>
+        for (let i = 1; i <= 2; i++)
