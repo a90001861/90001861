@@ -129,6 +129,17 @@
         .form button:hover {
             background-color: #0056b3;
         }
+        .drag-drop {
+            border: 2px dashed #007BFF;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            color: #007BFF;
+            cursor: pointer;
+        }
+        .drag-drop.dragover {
+            background-color: #f0f8ff;
+        }
         @media (max-width: 768px) {
             .board {
                 max-width: 100%;
@@ -154,7 +165,8 @@
                 <h2>새 글 작성</h2>
                 <input type="text" id="title1" placeholder="제목">
                 <div id="content1" class="contenteditable" contenteditable="true" placeholder="내용"></div>
-                <input type="file" id="image1" accept="image/*" onchange="previewImage(1)">
+                <div class="drag-drop" id="dragDrop1">이미지 파일을 여기에 드래그하거나 클릭하여 업로드</div>
+                <input type="file" id="image1" accept="image/*" style="display: none;" onchange="previewImage(1)">
                 <img id="preview1" style="display:none; width: 100px; margin-top: 10px;">
                 <button onclick="addPost(1)">등록</button>
             </div>
@@ -176,7 +188,8 @@
                 <h2>새 글 작성</h2>
                 <input type="text" id="title2" placeholder="제목">
                 <div id="content2" class="contenteditable" contenteditable="true" placeholder="내용"></div>
-                <input type="file" id="image2" accept="image/*" onchange="previewImage(2)">
+                <div class="drag-drop" id="dragDrop2">이미지 파일을 여기에 드래그하거나 클릭하여 업로드</div>
+                <input type="file" id="image2" accept="image/*" style="display: none;" onchange="previewImage(2)">
                 <img id="preview2" style="display:none; width: 100px; margin-top: 10px;">
                 <button onclick="addPost(2)">등록</button>
             </div>
@@ -189,6 +202,33 @@
             2: []
         };
         let editingIndex = -1; // Tracks the post being edited
+
+        function setupDragDrop(boardId) {
+            const dragDrop = document.getElementById(`dragDrop${boardId}`);
+            const fileInput = document.getElementById(`image${boardId}`);
+
+            dragDrop.addEventListener('click', () => fileInput.click());
+
+            dragDrop.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragDrop.classList.add('dragover');
+            });
+
+            dragDrop.addEventListener('dragleave', () => {
+                dragDrop.classList.remove('dragover');
+            });
+
+            dragDrop.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dragDrop.classList.remove('dragover');
+
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                    fileInput.files = e.dataTransfer.files;
+                    previewImage(boardId);
+                }
+            });
+        }
 
         function previewImage(boardId) {
             const fileInput = document.getElementById(`image${boardId}`);
@@ -287,9 +327,10 @@
             }
         }
 
-        // 초기 렌더링
+        // 초기 렌더링 및 드래그앤드롭 설정
         for (let i = 1; i <= 2; i++) {
             renderPosts(i);
+            setupDragDrop(i);
         }
     </script>
 </body>
