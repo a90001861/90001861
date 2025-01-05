@@ -218,7 +218,7 @@
     </div>
 
     <!-- Modal for post details -->
-    <div class="modal" id="postModal">
+    <div class="modal" id="postModal" onclick="closeModalByClick(event)">
         <div class="modal-content">
             <h3 id="modalTitle"></h3>
             <img id="modalImage" src="" alt="게시물 이미지">
@@ -283,11 +283,19 @@
             document.getElementById('modalTitle').textContent = post.title;
             document.getElementById('modalImage').src = post.images[0] || 'https://via.placeholder.com/100';
             document.getElementById('modalContent').innerHTML = post.content; // Preserve formatting
-            document.getElementById('postModal').style.display = 'flex';
+            const modal = document.getElementById('postModal');
+            modal.style.display = 'flex';
+            modal.scrollTop = 0; // Reset scroll position to top
         }
 
         function closeModal() {
             document.getElementById('postModal').style.display = 'none';
+        }
+
+        function closeModalByClick(event) {
+            if (event.target.id === 'postModal') {
+                closeModal();
+            }
         }
 
         function setupDragAndDrop(dragAreaId, inputId) {
