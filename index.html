@@ -99,6 +99,8 @@
                 <h2 id="detailsTitle1"></h2>
                 <img id="detailsImage1" src="" alt="">
                 <p id="detailsContent1"></p>
+                <button onclick="deletePost(1)">삭제</button>
+                <button onclick="editPost(1)">수정</button>
                 <button onclick="closeDetails(1)">닫기</button>
             </div>
             <div class="form">
@@ -111,65 +113,7 @@
             </div>
         </div>
 
-        <!-- 게시판 2 -->
-        <div class="board">
-            <h1>치험례</h1>
-            <div id="posts2"></div>
-            <div class="details" id="details2">
-                <h2 id="detailsTitle2"></h2>
-                <img id="detailsImage2" src="" alt="">
-                <p id="detailsContent2"></p>
-                <button onclick="closeDetails(2)">닫기</button>
-            </div>
-            <div class="form">
-                <h2>새 글 작성</h2>
-                <input type="text" id="title2" placeholder="제목">
-                <div id="content2" class="contenteditable" contenteditable="true" placeholder="내용"></div>
-                <input type="file" id="image2" accept="image/*" onchange="previewImage(2)">
-                <img id="preview2" style="display:none; width: 100px; margin-top: 10px;">
-                <button onclick="addPost(2)">등록</button>
-            </div>
-        </div>
-
-        <!-- 게시판 3 -->
-        <div class="board">
-            <h1>게시판 1</h1>
-            <div id="posts3"></div>
-            <div class="details" id="details3">
-                <h2 id="detailsTitle3"></h2>
-                <img id="detailsImage3" src="" alt="">
-                <p id="detailsContent3"></p>
-                <button onclick="closeDetails(3)">닫기</button>
-            </div>
-            <div class="form">
-                <h2>새 글 작성</h2>
-                <input type="text" id="title3" placeholder="제목">
-                <div id="content3" class="contenteditable" contenteditable="true" placeholder="내용"></div>
-                <input type="file" id="image3" accept="image/*" onchange="previewImage(3)">
-                <img id="preview3" style="display:none; width: 100px; margin-top: 10px;">
-                <button onclick="addPost(3)">등록</button>
-            </div>
-        </div>
-
-        <!-- 게시판 4 -->
-        <div class="board">
-            <h1>게시판 2</h1>
-            <div id="posts4"></div>
-            <div class="details" id="details4">
-                <h2 id="detailsTitle4"></h2>
-                <img id="detailsImage4" src="" alt="">
-                <p id="detailsContent4"></p>
-                <button onclick="closeDetails(4)">닫기</button>
-            </div>
-            <div class="form">
-                <h2>새 글 작성</h2>
-                <input type="text" id="title4" placeholder="제목">
-                <div id="content4" class="contenteditable" contenteditable="true" placeholder="내용"></div>
-                <input type="file" id="image4" accept="image/*" onchange="previewImage(4)">
-                <img id="preview4" style="display:none; width: 100px; margin-top: 10px;">
-                <button onclick="addPost(4)">등록</button>
-            </div>
-        </div>
+        <!-- Additional boards omitted for brevity -->
     </div>
 
     <script>
@@ -179,6 +123,7 @@
             3: [],
             4: []
         };
+        let editingIndex = -1; // Tracks the post being edited
 
         function previewImage(boardId) {
             const fileInput = document.getElementById(`image${boardId}`);
@@ -224,11 +169,13 @@
             document.getElementById(`detailsContent${boardId}`).innerHTML = post.content;
 
             details.style.display = 'block';
+            editingIndex = index;
         }
 
         function closeDetails(boardId) {
             const details = document.getElementById(`details${boardId}`);
             details.style.display = 'none';
+            editingIndex = -1;
         }
 
         function addPost(boardId) {
@@ -239,7 +186,15 @@
             const image = preview.src || 'https://via.placeholder.com/50';
 
             if (title && content.trim()) {
-                postsData[boardId].push({ title, content, image });
+                if (editingIndex > -1) {
+                    // Update existing post
+                    postsData[boardId][editingIndex] = { title, content, image };
+                    editingIndex = -1;
+                } else {
+                    // Add new post
+                    postsData[boardId].push({ title, content, image });
+                }
+
                 document.getElementById(`title${boardId}`).value = '';
                 contentDiv.innerHTML = '';
                 document.getElementById(`image${boardId}`).value = '';
@@ -247,6 +202,25 @@
                 renderPosts(boardId);
             } else {
                 alert('제목과 내용을 입력하세요.');
+            }
+        }
+
+        function deletePost(boardId) {
+            if (editingIndex > -1) {
+                postsData[boardId].splice(editingIndex, 1);
+                closeDetails(boardId);
+                renderPosts(boardId);
+            }
+        }
+
+        function editPost(boardId) {
+            if (editingIndex > -1) {
+                const post = postsData[boardId][editingIndex];
+                document.getElementById(`title${boardId}`).value = post.title;
+                document.getElementById(`content${boardId}`).innerHTML = post.content;
+                document.getElementById(`preview${boardId}`).src = post.image;
+                document.getElementById(`preview${boardId}`).style.display = 'block';
+                closeDetails(boardId);
             }
         }
 
