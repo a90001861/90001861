@@ -257,44 +257,8 @@
         }
 
         function addPost(boardId) {
-    console.log(`addPost 호출: ${boardId}`);
-    const title = document.getElementById(`${boardId}Title`).value;
-    const content = document.getElementById(`${boardId}Content`).innerHTML;
-    const imageInput = document.getElementById(`${boardId}Image`);
-
-    const images = Array.from(imageInput.files).map(file => {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = error => reject(error);
-            reader.readAsDataURL(file);
-        });
-    });
-
-    Promise.all(images).then(imageDataUrls => {
-        console.log(`이미지 업로드 완료: ${imageDataUrls.length}개`);
-        if (title) {
-            if (!postsData[boardId]) {
-                postsData[boardId] = [];
-            }
-
-            postsData[boardId].push({ title, content, images: imageDataUrls });
-            localStorage.setItem(`${boardId}Data`, JSON.stringify(postsData[boardId]));
-            renderPosts(boardId);
-
-            document.getElementById(`${boardId}Title`).value = '';
-            document.getElementById(`${boardId}Content`).innerHTML = '';
-            imageInput.value = '';
-
-            const dragArea = document.getElementById(`${boardId}DragArea`);
-            dragArea.textContent = '파일을 여기에 드래그하거나 클릭하세요';
-        } else {
-            alert('제목을 입력하세요.');
-        }
-    }).catch(error => {
-        console.error(`${boardId} 게시판에서 이미지 업로드 중 오류 발생:`, error);
-    });
-}Title`).value;
+            console.log(`addPost 호출: ${boardId}`);
+            const title = document.getElementById(`${boardId}Title`).value;
             const content = document.getElementById(`${boardId}Content`).innerHTML;
             const imageInput = document.getElementById(`${boardId}Image`);
 
@@ -308,6 +272,7 @@
             });
 
             Promise.all(images).then(imageDataUrls => {
+                console.log(`이미지 업로드 완료: ${imageDataUrls.length}개`);
                 if (title) {
                     if (!postsData[boardId]) {
                         postsData[boardId] = [];
@@ -358,43 +323,16 @@
         }
 
         function setupDragAndDrop(dragAreaId, inputId) {
-    console.log(`setupDragAndDrop 호출: dragAreaId=${dragAreaId}, inputId=${inputId}`);
-    const dragArea = document.getElementById(dragAreaId);
-    const fileInput = document.getElementById(inputId);
+            console.log(`setupDragAndDrop 호출: dragAreaId=${dragAreaId}, inputId=${inputId}`);
+            const dragArea = document.getElementById(dragAreaId);
+            const fileInput = document.getElementById(inputId);
 
-    dragArea.addEventListener('click', () => fileInput.click());
+            dragArea.addEventListener('click', () => fileInput.click());
 
-    dragArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dragArea.classList.add('dragover');
-    });
-
-    dragArea.addEventListener('dragleave', () => {
-        dragArea.classList.remove('dragover');
-    });
-
-    dragArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dragArea.classList.remove('dragover');
-
-        const files = e.dataTransfer.files;
-        const dataTransfer = new DataTransfer();
-        Array.from(files).forEach(file => dataTransfer.items.add(file));
-        fileInput.files = dataTransfer.files;
-
-        displaySelectedFiles(fileInput, dragArea);
-    });
-
-    fileInput.addEventListener('change', () => {
-        displaySelectedFiles(fileInput, dragArea);
-    });
-}
-
-function displaySelectedFiles(fileInput, dragArea) {
-    const fileList = Array.from(fileInput.files).map(file => file.name).join(', ');
-    dragArea.textContent = fileList || '파일을 여기에 드래그하거나 클릭하세요';
-    console.log('선택된 파일:', fileList);
-});
+            dragArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dragArea.classList.add('dragover');
+            });
 
             dragArea.addEventListener('dragleave', () => {
                 dragArea.classList.remove('dragover');
