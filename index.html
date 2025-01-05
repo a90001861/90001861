@@ -27,6 +27,31 @@
             max-width: 100%;
             border-radius: 5px;
         }
+        .backup {
+            padding: 20px;
+            margin: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .backup h3 {
+            margin-top: 0;
+        }
+        .backup table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .backup table, .backup th, .backup td {
+            border: 1px solid #ccc;
+        }
+        .backup th, .backup td {
+            padding: 10px;
+            text-align: left;
+        }
+        .backup img {
+            max-width: 100px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -45,16 +70,68 @@
         <p id="detailsContent"></p>
     </div>
 
+    <div class="backup" id="backup">
+        <h3>백업 데이터</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>제목</th>
+                    <th>내용</th>
+                    <th>이미지</th>
+                </tr>
+            </thead>
+            <tbody id="backupTableBody">
+            </tbody>
+        </table>
+    </div>
+
     <script>
-        const postsData = [{
-            title: "예제 게시물",
-            content: "이것은 예제 게시물입니다.",
-            images: [
-                "https://via.placeholder.com/300",
-                "https://via.placeholder.com/400",
-                "https://via.placeholder.com/500"
-            ]
-        }];
+        const postsData = [
+            {
+                title: "예제 게시물 1",
+                content: "이것은 예제 게시물입니다.",
+                images: [
+                    "https://via.placeholder.com/300",
+                    "https://via.placeholder.com/400"
+                ]
+            },
+            {
+                title: "예제 게시물 2",
+                content: "또 다른 예제 게시물입니다.",
+                images: [
+                    "https://via.placeholder.com/500"
+                ]
+            }
+        ];
+
+        const updateBackupTable = () => {
+            const backupTableBody = document.getElementById('backupTableBody');
+            backupTableBody.innerHTML = '';
+
+            postsData.forEach(post => {
+                const row = document.createElement('tr');
+
+                const titleCell = document.createElement('td');
+                titleCell.textContent = post.title;
+                row.appendChild(titleCell);
+
+                const contentCell = document.createElement('td');
+                contentCell.textContent = post.content;
+                row.appendChild(contentCell);
+
+                const imagesCell = document.createElement('td');
+                post.images.forEach(image => {
+                    const img = document.createElement('img');
+                    img.src = image;
+                    imagesCell.appendChild(img);
+                });
+                row.appendChild(imagesCell);
+
+                backupTableBody.appendChild(row);
+            });
+        };
+
+        updateBackupTable();
 
         const createImageViewer = () => {
             const viewerContainer = document.createElement('div');
