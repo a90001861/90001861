@@ -17,235 +17,145 @@
             padding: 15px;
             font-size: 1.5rem;
         }
-        .board {
+        .container {
+            display: flex;
+            justify-content: space-between;
             padding: 20px;
-            margin: 20px;
+        }
+        .board {
+            width: 48%;
+            background-color: #f9f9f9;
             border: 1px solid #ccc;
             border-radius: 5px;
+            padding: 20px;
+        }
+        .board h2 {
+            margin-top: 0;
         }
         .details img {
             max-width: 100%;
             border-radius: 5px;
         }
-        .backup {
-            padding: 20px;
-            margin: 20px;
+        .form {
+            margin-top: 20px;
+        }
+        .form input, .form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            background-color: #f9f9f9;
         }
-        .backup h3 {
-            margin-top: 0;
+        .form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        .backup table {
-            width: 100%;
-            border-collapse: collapse;
+        .form button:hover {
+            background-color: #0056b3;
         }
-        .backup table, .backup th, .backup td {
-            border: 1px solid #ccc;
-        }
-        .backup th, .backup td {
+        .post {
+            margin-bottom: 10px;
             padding: 10px;
-            text-align: left;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: white;
         }
-        .backup img {
-            max-width: 100px;
+        .post h3 {
+            margin: 0;
+        }
+        .post img {
+            max-width: 100%;
+            margin-top: 10px;
             border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        게시판
+        아침편지와 치험례 게시판
     </div>
 
-    <div class="board">
-        <h2>게시판 제목</h2>
-        <p>게시판 내용</p>
-    </div>
+    <div class="container">
+        <!-- 아침편지 게시판 -->
+        <div class="board" id="morningLetter">
+            <h2>아침편지</h2>
+            <div id="morningLetterPosts"></div>
+            <div class="form">
+                <h3>새 글 작성</h3>
+                <input type="text" id="morningLetterTitle" placeholder="제목">
+                <textarea id="morningLetterContent" rows="5" placeholder="내용"></textarea>
+                <input type="file" id="morningLetterImage" multiple>
+                <button onclick="addPost('morningLetter')">등록</button>
+            </div>
+        </div>
 
-    <div class="board" id="details">
-        <h2 id="detailsTitle"></h2>
-        <div id="detailsImages"></div>
-        <p id="detailsContent"></p>
-    </div>
-
-    <div class="backup" id="backup">
-        <h3>백업 데이터</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>제목</th>
-                    <th>내용</th>
-                    <th>이미지</th>
-                </tr>
-            </thead>
-            <tbody id="backupTableBody">
-            </tbody>
-        </table>
+        <!-- 치험례 게시판 -->
+        <div class="board" id="caseStudy">
+            <h2>치험례</h2>
+            <div id="caseStudyPosts"></div>
+            <div class="form">
+                <h3>새 글 작성</h3>
+                <input type="text" id="caseStudyTitle" placeholder="제목">
+                <textarea id="caseStudyContent" rows="5" placeholder="내용"></textarea>
+                <input type="file" id="caseStudyImage" multiple>
+                <button onclick="addPost('caseStudy')">등록</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const postsData = [
-            {
-                title: "예제 게시물 1",
-                content: "이것은 예제 게시물입니다.",
-                images: [
-                    "https://via.placeholder.com/300",
-                    "https://via.placeholder.com/400"
-                ]
-            },
-            {
-                title: "예제 게시물 2",
-                content: "또 다른 예제 게시물입니다.",
-                images: [
-                    "https://via.placeholder.com/500"
-                ]
+        const postsData = {
+            morningLetter: [],
+            caseStudy: []
+        };
+
+        function renderPosts(boardId) {
+            const boardPosts = document.getElementById(`${boardId}Posts`);
+            boardPosts.innerHTML = '';
+            postsData[boardId].forEach((post, index) => {
+                const postElement = document.createElement('div');
+                postElement.className = 'post';
+                postElement.innerHTML = `
+                    <h3>${post.title}</h3>
+                    <p>${post.content}</p>
+                    ${post.images.map(img => `<img src="${img}" alt="이미지">`).join('')}
+                    <button onclick="deletePost('${boardId}', ${index})">삭제</button>
+                `;
+                boardPosts.appendChild(postElement);
+            });
+        }
+
+        function addPost(boardId) {
+            const title = document.getElementById(`${boardId}Title`).value;
+            const content = document.getElementById(`${boardId}Content`).value;
+            const imageInput = document.getElementById(`${boardId}Image`);
+            const images = Array.from(imageInput.files).map(file => URL.createObjectURL(file));
+
+            if (title && content) {
+                postsData[boardId].push({ title, content, images });
+                renderPosts(boardId);
+
+                // Clear input fields
+                document.getElementById(`${boardId}Title`).value = '';
+                document.getElementById(`${boardId}Content`).value = '';
+                imageInput.value = '';
+            } else {
+                alert('제목과 내용을 입력하세요.');
             }
-        ];
+        }
 
-        const updateBackupTable = () => {
-            const backupTableBody = document.getElementById('backupTableBody');
-            backupTableBody.innerHTML = '';
+        function deletePost(boardId, index) {
+            postsData[boardId].splice(index, 1);
+            renderPosts(boardId);
+        }
 
-            postsData.forEach(post => {
-                const row = document.createElement('tr');
-
-                const titleCell = document.createElement('td');
-                titleCell.textContent = post.title;
-                row.appendChild(titleCell);
-
-                const contentCell = document.createElement('td');
-                contentCell.textContent = post.content;
-                row.appendChild(contentCell);
-
-                const imagesCell = document.createElement('td');
-                post.images.forEach(image => {
-                    const img = document.createElement('img');
-                    img.src = image;
-                    imagesCell.appendChild(img);
-                });
-                row.appendChild(imagesCell);
-
-                backupTableBody.appendChild(row);
-            });
-        };
-
-        updateBackupTable();
-
-        const createImageViewer = () => {
-            const viewerContainer = document.createElement('div');
-            viewerContainer.id = 'imageViewer';
-            viewerContainer.style.position = 'fixed';
-            viewerContainer.style.top = '0';
-            viewerContainer.style.left = '0';
-            viewerContainer.style.width = '100%';
-            viewerContainer.style.height = '100%';
-            viewerContainer.style.background = 'rgba(0, 0, 0, 0.8)';
-            viewerContainer.style.display = 'none';
-            viewerContainer.style.justifyContent = 'center';
-            viewerContainer.style.alignItems = 'center';
-            viewerContainer.style.zIndex = '10000';
-
-            const img = document.createElement('img');
-            img.id = 'imageViewerImg';
-            img.style.maxWidth = '90%';
-            img.style.maxHeight = '90%';
-
-            const closeButton = document.createElement('button');
-            closeButton.textContent = '닫기';
-            closeButton.style.position = 'absolute';
-            closeButton.style.top = '20px';
-            closeButton.style.right = '20px';
-            closeButton.style.padding = '10px';
-            closeButton.style.background = 'red';
-            closeButton.style.color = 'white';
-            closeButton.style.border = 'none';
-            closeButton.style.borderRadius = '5px';
-            closeButton.style.cursor = 'pointer';
-            closeButton.addEventListener('click', () => {
-                viewerContainer.style.display = 'none';
-            });
-
-            const prevButton = document.createElement('button');
-            prevButton.textContent = '<';
-            prevButton.style.position = 'absolute';
-            prevButton.style.left = '20px';
-            prevButton.style.top = '50%';
-            prevButton.style.transform = 'translateY(-50%)';
-            prevButton.style.padding = '10px';
-            prevButton.style.background = 'white';
-            prevButton.style.border = 'none';
-            prevButton.style.borderRadius = '50%';
-            prevButton.style.cursor = 'pointer';
-
-            const nextButton = document.createElement('button');
-            nextButton.textContent = '>';
-            nextButton.style.position = 'absolute';
-            nextButton.style.right = '20px';
-            nextButton.style.top = '50%';
-            nextButton.style.transform = 'translateY(-50%)';
-            nextButton.style.padding = '10px';
-            nextButton.style.background = 'white';
-            nextButton.style.border = 'none';
-            nextButton.style.borderRadius = '50%';
-            nextButton.style.cursor = 'pointer';
-
-            viewerContainer.appendChild(img);
-            viewerContainer.appendChild(closeButton);
-            viewerContainer.appendChild(prevButton);
-            viewerContainer.appendChild(nextButton);
-            document.body.appendChild(viewerContainer);
-
-            let currentIndex = 0;
-            let currentImages = [];
-
-            const updateImage = () => {
-                img.src = currentImages[currentIndex];
-            };
-
-            prevButton.addEventListener('click', () => {
-                currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-                updateImage();
-            });
-
-            nextButton.addEventListener('click', () => {
-                currentIndex = (currentIndex + 1) % currentImages.length;
-                updateImage();
-            });
-
-            return {
-                open(images, index) {
-                    currentImages = images;
-                    currentIndex = index;
-                    updateImage();
-                    viewerContainer.style.display = 'flex';
-                },
-            };
-        };
-
-        const imageViewer = createImageViewer();
-
-        const showDetails = (post) => {
-            document.getElementById('detailsTitle').textContent = post.title;
-            const detailsImagesContainer = document.getElementById('detailsImages');
-            detailsImagesContainer.innerHTML = '';
-
-            post.images.forEach((image, idx) => {
-                const img = document.createElement('img');
-                img.src = image;
-                img.style.cursor = 'pointer';
-                img.addEventListener('click', () => {
-                    imageViewer.open(post.images, idx);
-                });
-                detailsImagesContainer.appendChild(img);
-            });
-
-            document.getElementById('detailsContent').textContent = post.content;
-        };
-
-        // Render example post
-        showDetails(postsData[0]);
+        // Initialize boards
+        renderPosts('morningLetter');
+        renderPosts('caseStudy');
     </script>
 </body>
 </html>
