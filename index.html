@@ -9,6 +9,7 @@
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #f9f9f9;
         }
         .header {
             background-color: #007bff;
@@ -16,61 +17,88 @@
             text-align: center;
             padding: 15px;
             font-size: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .container {
+            max-width: 1200px;
+            margin: 20px auto;
             display: flex;
-            justify-content: space-between;
-            padding: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
         }
         .board {
-            width: 48%;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            flex: 1;
+            min-width: 300px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
         }
         .board h2 {
             margin-top: 0;
-        }
-        .details img {
-            max-width: 100%;
-            border-radius: 5px;
-        }
-        .form {
-            margin-top: 20px;
-        }
-        .form input, .form textarea {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        .form button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .form button:hover {
-            background-color: #0056b3;
+            font-size: 1.25rem;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
         }
         .post {
-            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: white;
-        }
-        .post h3 {
-            margin: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         .post img {
-            max-width: 100%;
-            margin-top: 10px;
+            flex-shrink: 0;
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
             border-radius: 5px;
+        }
+        .post-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .post-content h3 {
+            margin: 0;
+            font-size: 1rem;
+            color: #007bff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .post-content p {
+            margin: 5px 0 0;
+            font-size: 0.875rem;
+            color: #555;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .form {
+            margin-top: 20px;
+        }
+        .form input, .form textarea, .form button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .form button {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            border: none;
+        }
+        .form button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
@@ -87,7 +115,7 @@
             <div class="form">
                 <h3>새 글 작성</h3>
                 <input type="text" id="morningLetterTitle" placeholder="제목">
-                <textarea id="morningLetterContent" rows="5" placeholder="내용"></textarea>
+                <textarea id="morningLetterContent" rows="4" placeholder="내용"></textarea>
                 <input type="file" id="morningLetterImage" multiple>
                 <button onclick="addPost('morningLetter')">등록</button>
             </div>
@@ -100,7 +128,7 @@
             <div class="form">
                 <h3>새 글 작성</h3>
                 <input type="text" id="caseStudyTitle" placeholder="제목">
-                <textarea id="caseStudyContent" rows="5" placeholder="내용"></textarea>
+                <textarea id="caseStudyContent" rows="4" placeholder="내용"></textarea>
                 <input type="file" id="caseStudyImage" multiple>
                 <button onclick="addPost('caseStudy')">등록</button>
             </div>
@@ -120,10 +148,11 @@
                 const postElement = document.createElement('div');
                 postElement.className = 'post';
                 postElement.innerHTML = `
-                    <h3>${post.title}</h3>
-                    <p>${post.content}</p>
-                    ${post.images.map(img => `<img src="${img}" alt="이미지">`).join('')}
-                    <button onclick="deletePost('${boardId}', ${index})">삭제</button>
+                    <img src="${post.images[0] || 'https://via.placeholder.com/100'}" alt="이미지">
+                    <div class="post-content">
+                        <h3>${post.title}</h3>
+                        <p>${post.content}</p>
+                    </div>
                 `;
                 boardPosts.appendChild(postElement);
             });
@@ -146,11 +175,6 @@
             } else {
                 alert('제목과 내용을 입력하세요.');
             }
-        }
-
-        function deletePost(boardId, index) {
-            postsData[boardId].splice(index, 1);
-            renderPosts(boardId);
         }
 
         // Initialize boards
